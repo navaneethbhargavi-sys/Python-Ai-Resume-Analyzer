@@ -54,20 +54,20 @@ def analyze_resume(resume_text):
         report["score"] += SKILLS_SCORE
         report["strengths"].append("Skills section found")
     else:
-        report["weaknesses"].append("Skills section missing")
+        report["weaknesses"].append("Skills")
         report["missing_sections"].append("Skills")
     
     if has_education_section(resume_text):
         report["score"] += EDUCATION_SCORE
         report["strengths"].append("Education section found")
     else:
-        report["weaknesses"].append("Education section missing")
+        report["weaknesses"].append("Education")
         report["missing_sections"].append("Education")
         
     if has_projects_section(resume_text):
         report["score"] += PROJECTS_SCORE
         report["strengths"].append("Projects section found")
     else:
-        report["weaknesses"].append("Projects section missing")    
+        report["weaknesses"].append("Projects")    
         report["missing_sections"].append("Projects")
     return report

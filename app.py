@@ -1,7 +1,6 @@
 import streamlit as st
 from utils.pdf_reader import extract_text
 from utils.ats import analyze_resume
-import time
 
 st.set_page_config(
     page_title = "AI Resume Analyzer",
@@ -28,4 +27,35 @@ if uploaded_file is not None:
             resume_text = extract_text(uploaded_file)
             report = analyze_resume(resume_text)
         
-        st.write(report)
+        st.header("📄 AI Resume Analysis")
+        st.divider()
+        ats_score = report["score"]
+        score_color = ""
+        
+        if 80 <= ats_score <= 100:
+            score_color = "🟢"
+        elif 50 <= ats_score < 80:
+            score_color = "🟡"
+        elif 0 <= ats_score < 50:
+            score_color = "🔴"
+        
+        st.metric(
+            label = "ATS Score",
+            value = f"{score_color} {ats_score} / 100"
+        )
+        st.progress(ats_score)
+        st.divider()
+        
+        st.subheader("Strengths")
+        for strength in report["strengths"]:
+            st.write(f"✅ {strength}")
+        st.divider()
+        
+        st.subheader("Suggestions")
+        for weakness in report["weaknesses"]:
+            st.write(f"💡 Add a {weakness} section to improve your ATS score.")
+        st.divider()
+            
+        st.subheader("Missing Sections")
+        for missing_section in report["missing_sections"]:
+            st.write(f"❌ {missing_section}")
