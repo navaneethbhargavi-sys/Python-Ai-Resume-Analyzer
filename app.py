@@ -1,5 +1,7 @@
 import streamlit as st
 from utils.pdf_reader import extract_text
+from utils.ats import analyze_resume
+import time
 
 st.set_page_config(
     page_title = "AI Resume Analyzer",
@@ -22,5 +24,8 @@ if uploaded_file is not None:
     st.success("Resume uploaded successfully!")
 
     if st.button("Analyze Resume"):
-        resume_text = extract_text(uploaded_file)
-        st.write(resume_text)
+        with st.spinner("Analyzing Resume..."):
+            resume_text = extract_text(uploaded_file)
+            report = analyze_resume(resume_text)
+        
+        st.write(report)
