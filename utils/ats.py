@@ -13,7 +13,7 @@ EDUCATION_HEADINGS = [
     "Qualifications"
 ]
 
-PROJECT_HEADINGS = [
+PROJECTS_HEADINGS = [
     "Projects",
     "Personal Projects",
     "Academic Projects",
@@ -24,23 +24,19 @@ SKILLS_SCORE = 20
 EDUCATION_SCORE = 20
 PROJECTS_SCORE = 20
 
-def has_skills_section(resume_text):
-    for heading in SKILLS_HEADINGS:
+def has_section(resume_text, headings):
+    for heading in headings:
         if heading in resume_text:
             return True
     return False
 
-def has_education_section(resume_text):
-    for heading in EDUCATION_HEADINGS:
-        if heading in resume_text:
-            return True
-    return False
-
-def has_projects_section(resume_text):
-    for heading in PROJECT_HEADINGS:
-        if heading in resume_text:
-            return True
-    return False
+def update_report(report, resume_text, headings, section, score):
+    if has_section(resume_text, headings):
+        report["score"] += score
+        report["strengths"].append(section)
+    else:
+        report["weaknesses"].append(section)
+        report["missing_sections"].append(section)
 
 def analyze_resume(resume_text):
     report = {
@@ -50,24 +46,27 @@ def analyze_resume(resume_text):
         "missing_sections": []
     }
     
-    if has_skills_section(resume_text):
-        report["score"] += SKILLS_SCORE
-        report["strengths"].append("Skills section found")
-    else:
-        report["weaknesses"].append("Skills")
-        report["missing_sections"].append("Skills")
+    update_report(
+        report,
+        resume_text,
+        SKILLS_HEADINGS,
+        "Skills",
+        SKILLS_SCORE
+    )
     
-    if has_education_section(resume_text):
-        report["score"] += EDUCATION_SCORE
-        report["strengths"].append("Education section found")
-    else:
-        report["weaknesses"].append("Education")
-        report["missing_sections"].append("Education")
+    update_report(
+        report,
+        resume_text,
+        EDUCATION_HEADINGS,
+        "Education",
+        EDUCATION_SCORE
+    )
         
-    if has_projects_section(resume_text):
-        report["score"] += PROJECTS_SCORE
-        report["strengths"].append("Projects section found")
-    else:
-        report["weaknesses"].append("Projects")    
-        report["missing_sections"].append("Projects")
+    update_report(
+        report,
+        resume_text,
+        PROJECTS_HEADINGS,
+        "Projects",
+        PROJECTS_SCORE
+    )
     return report

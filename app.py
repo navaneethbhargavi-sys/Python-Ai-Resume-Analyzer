@@ -48,7 +48,7 @@ if uploaded_file is not None:
         
         st.subheader("Strengths")
         for strength in report["strengths"]:
-            st.write(f"✅ {strength}")
+            st.write(f"✅ {strength} section found")
         st.divider()
         
         st.subheader("Suggestions")
