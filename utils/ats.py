@@ -1,28 +1,45 @@
-SKILLS_HEADINGS = [
-    "Skills",
-    "Technical Skills",
-    "Core Competencies",
-    "Technologies"
-]
-
-EDUCATION_HEADINGS = [
-    "Education",
-    "Academic Background",
-    "Academic Qualifications",
-    "Educational Qualifications",
-    "Qualifications"
-]
-
-PROJECTS_HEADINGS = [
-    "Projects",
-    "Personal Projects",
-    "Academic Projects",
-    "Key Projects"
-]
-
-SKILLS_SCORE = 20
-EDUCATION_SCORE = 20
-PROJECTS_SCORE = 20
+SECTIONS = {
+    "Skills": {
+        "headings": [
+            "Skills",
+            "Technical Skills",
+            "Core Competencies",
+            "Technologies"
+        ],
+        "score": 20
+    },
+    "Education": {
+        "headings": [
+            "Education",
+            "Academic Background",
+            "Academic Qualifications",
+            "Educational Qualifications",
+            "Qualifications"
+        ],
+        "score": 10
+    },
+    "Projects": {
+        "headings": [
+            "Projects",
+            "Personal Projects",
+            "Academic Projects",
+            "Key Projects"
+        ],
+        "score": 20
+    },
+    "Experience": {
+        "headings": [
+            "Experience",
+            "Work Experience",
+            "Professional Experience",
+            "Internship Experience",
+            "Internships",
+            "Employment History",
+            "Work History"
+        ],
+        "score": 20
+    }
+}
 
 def has_section(resume_text, headings):
     for heading in headings:
@@ -46,27 +63,13 @@ def analyze_resume(resume_text):
         "missing_sections": []
     }
     
-    update_report(
-        report,
-        resume_text,
-        SKILLS_HEADINGS,
-        "Skills",
-        SKILLS_SCORE
-    )
-    
-    update_report(
-        report,
-        resume_text,
-        EDUCATION_HEADINGS,
-        "Education",
-        EDUCATION_SCORE
-    )
-        
-    update_report(
-        report,
-        resume_text,
-        PROJECTS_HEADINGS,
-        "Projects",
-        PROJECTS_SCORE
-    )
+    for section in SECTIONS:
+        update_report(
+            report,
+            resume_text,
+            SECTIONS[section]["headings"],
+            section,
+            SECTIONS[section]["score"]
+        )
+
     return report
