@@ -101,7 +101,7 @@ def count_technical_skills(resume_text):
     return tech_skills_count
 
 def technical_skills_score(tech_skills_count):
-    if not tech_skills_count:
+    if tech_skills_count == 0:
         return 0
     if 1 <= tech_skills_count <= 3:
         return BEGINNER_SKILL_SCORE
@@ -119,6 +119,7 @@ def update_report(
 ):
     if has_section(resume_text, headings):
         report["score"] += score
+        report["score_breakdown"][section] += score
         report["strengths"].append(section)
     else:
         report["weaknesses"].append(section)
@@ -127,6 +128,13 @@ def update_report(
 def analyze_resume(resume_text):
     report = {
         "score": 0,
+        "score_breakdown": {
+            "Skills": 0,
+            "Education": 0,
+            "Projects": 0,
+            "Experience": 0,
+            "Technical Skills": 0              
+        },
         "strengths": [],
         "weaknesses": [],
         "missing_sections": [],
@@ -149,6 +157,9 @@ def analyze_resume(resume_text):
     if tech_skills_count == 0:
         report["suggestions"].append("Technical Skills")
     
-    report["score"] += technical_skills_score(tech_skills_count)
+    technical_score = technical_skills_score(tech_skills_count)
+    
+    report["score"] += technical_score
+    report["score_breakdown"]["Technical Skills"] += technical_score
     
     return report

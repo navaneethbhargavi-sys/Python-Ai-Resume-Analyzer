@@ -46,6 +46,10 @@ if uploaded_file is not None:
         st.progress(ats_score)
         st.divider()
         
+        for section, points in report["score_breakdown"].items():
+            st.write(f"{section} -> {points}")
+        st.divider()
+        
         st.subheader("Strengths")
         for strength in report["strengths"]:
             st.write(f"✅ {strength} section found")
