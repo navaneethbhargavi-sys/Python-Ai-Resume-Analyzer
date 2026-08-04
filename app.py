@@ -49,11 +49,15 @@ if uploaded_file is not None:
         st.subheader("Strengths")
         for strength in report["strengths"]:
             st.write(f"✅ {strength} section found")
+        if report["technical_skills_count"] > 0:
+            st.write(f'✅ Detected {report["technical_skills_count"]} technical skills')
         st.divider()
         
         st.subheader("Suggestions")
         for weakness in report["weaknesses"]:
             st.write(f"💡 Add a {weakness} section to improve your ATS score.")
+        for suggestion in report["suggestions"]:
+            st.write(f"Add {suggestion} to your resume to improve your ATS Score")
         st.divider()
             
         st.subheader("Missing Sections")

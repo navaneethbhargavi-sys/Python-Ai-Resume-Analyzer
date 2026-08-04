@@ -101,6 +101,8 @@ def count_technical_skills(resume_text):
     return tech_skills_count
 
 def technical_skills_score(tech_skills_count):
+    if not tech_skills_count:
+        return 0
     if 1 <= tech_skills_count <= 3:
         return BEGINNER_SKILL_SCORE
     elif 4 <= tech_skills_count <= 7:
@@ -140,5 +142,13 @@ def analyze_resume(resume_text):
             section,
             SECTIONS[section]["score"]
         )
+    
+    tech_skills_count = count_technical_skills(resume_text)
+    report["technical_skills_count"] = tech_skills_count
+    
+    if tech_skills_count == 0:
+        report["suggestions"].append("Technical Skills")
+    
+    report["score"] += technical_skills_score(tech_skills_count)
     
     return report
