@@ -46,22 +46,34 @@ if uploaded_file is not None:
         st.progress(ats_score)
         st.divider()
         
+        left, right = st.columns([4, 1])
+        
         for section, points in report["score_breakdown"].items():
-            st.write(f"{section} -> {points}")
+            left.write(f"{section}")
+            right.write(f"{points}/20")
         st.divider()
         
-        st.subheader("Strengths")
+        left, right = st.columns(2)
+        
+        # left -> strengths
+        left.subheader("Strengths")
         for strength in report["strengths"]:
-            st.write(f"✅ {strength} section found")
-        if report["technical_skills_count"] > 0:
-            st.write(f'✅ Detected {report["technical_skills_count"]} technical skills')
-        st.divider()
+            left.write(f"✅ {strength} section found")
+        left.write("")
         
-        st.subheader("Suggestions")
+        if report["technical_skills_count"] > 0:
+            left.markdown(f'**Detected {report["technical_skills_count"]} technical skills**')
+            st.write('')
+            
+            for tech_skill in report["technical_skills"]:
+                left.write(f"✅ {tech_skill}")
+        
+        # right -> suggestions
+        right.subheader("Suggestions")
         for weakness in report["weaknesses"]:
-            st.write(f"💡 Add a {weakness} section to improve your ATS score.")
+            right.write(f"💡 Add a {weakness} section to improve your ATS score.")
         for suggestion in report["suggestions"]:
-            st.write(f"Add {suggestion} to your resume to improve your ATS Score")
+            right.write(f"Add {suggestion} to your resume to improve your ATS Score")
         st.divider()
             
         st.subheader("Missing Sections")

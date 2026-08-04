@@ -91,14 +91,15 @@ def has_section(resume_text, headings):
 # TODO:
 # Improve technical skill matching to avoid partial matches
 # (e.g. "C" matching "C++" thru the `in` logic)
-def count_technical_skills(resume_text):
-    tech_skills_count = 0 
+def find_technical_skills(resume_text):
+    skills_list = []
     lowered_resume_text = resume_text.lower()
     
     for technical_skill in TECHNICAL_SKILLS:
         if technical_skill.lower() in lowered_resume_text:
-            tech_skills_count += 1
-    return tech_skills_count
+            skills_list.append(technical_skill)
+            
+    return skills_list
 
 def technical_skills_score(tech_skills_count):
     if tech_skills_count == 0:
@@ -138,6 +139,7 @@ def analyze_resume(resume_text):
         "strengths": [],
         "weaknesses": [],
         "missing_sections": [],
+        "technical_skills": [],
         "technical_skills_count": 0,
         "suggestions": []
     }
@@ -151,7 +153,10 @@ def analyze_resume(resume_text):
             SECTIONS[section]["score"]
         )
     
-    tech_skills_count = count_technical_skills(resume_text)
+    tech_skills = find_technical_skills(resume_text)
+    report["technical_skills"] = tech_skills
+    
+    tech_skills_count = len(report["technical_skills"])
     report["technical_skills_count"] = tech_skills_count
     
     if tech_skills_count == 0:
