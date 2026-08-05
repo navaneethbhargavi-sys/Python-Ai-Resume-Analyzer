@@ -80,6 +80,19 @@ TECHNICAL_SKILLS = [
     "Redis"
 ]
 
+ACTION_VERBS = [
+    "Built",
+    "Developed",
+    "Created",
+    "Implemented",
+    "Designed",
+    "Engineered",
+    "Optimized",
+    "Automated",
+    "Integrated",
+    "Led"
+]
+
 BEGINNER_SKILL_SCORE = 5
 INTERMEDIATE_SKILL_SCORE = 10
 ADVANCED_SKILL_SCORE = 20
@@ -112,6 +125,19 @@ def technical_skills_score(tech_skills_count):
         return INTERMEDIATE_SKILL_SCORE
     elif tech_skills_count >= 8:
         return ADVANCED_SKILL_SCORE
+    
+def has_github_link(resume_text):
+    if "github.com" in resume_text.lower():
+        return True
+    return False
+
+def count_action_verbs(resume_text):
+    verb_count = 0
+    
+    for action_verb in ACTION_VERBS:
+        if action_verb.lower() in resume_text.lower():
+            verb_count += 1
+    return verb_count          
 
 def update_report(
     report, 
@@ -136,6 +162,8 @@ def analyze_resume(resume_text):
         "missing_sections": [],
         "technical_skills": [],
         "technical_skills_count": 0,
+        "github_links_found": False,
+        "action_verbs_count": 0,
         "suggestions": []
     }
     
@@ -172,4 +200,12 @@ def analyze_resume(resume_text):
         "max_score": MAX_TECH_SCORE
     }
     
+    report["github_links_found"] = has_github_link(resume_text)
+    if report["github_links_found"]:
+        report["strengths"].append("GitHub Links")
+    else:
+        report["suggestions"].append("GitHub Links")
+    
+    report["action_verbs_count"] = count_action_verbs(resume_text)
+        
     return report

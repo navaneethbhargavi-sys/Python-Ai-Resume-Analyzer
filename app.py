@@ -80,7 +80,7 @@ if uploaded_file is not None:
         for weakness in report["weaknesses"]:
             right.write(f"💡 Add a {weakness} section to improve your ATS score.")
         for suggestion in report["suggestions"]:
-            right.write(f"Add {suggestion} to your resume to improve your ATS Score")
+            right.write(f"💡 Add {suggestion} to your resume to improve your ATS Score")
         st.divider()
             
         st.subheader("Missing Sections")
