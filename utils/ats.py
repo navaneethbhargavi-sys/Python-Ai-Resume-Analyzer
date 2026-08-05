@@ -131,13 +131,6 @@ def update_report(
 def analyze_resume(resume_text):
     report = {
         "score": 0,
-        # "score_breakdown": {
-        #     "Skills": {},
-        #     "Education": {},
-        #     "Projects": {},
-        #     "Experience": {},
-        #     "Technical Skills": {}              
-        # },
         "strengths": [],
         "weaknesses": [],
         "missing_sections": [],
@@ -165,13 +158,13 @@ def analyze_resume(resume_text):
     
     report["technical_skills"] = find_technical_skills(resume_text)
     
-    tech_skills_count = len(report["technical_skills"])
-    report["technical_skills_count"] = tech_skills_count
+    technical_skills_count = len(report["technical_skills"])
+    report["technical_skills_count"] = technical_skills_count
     
-    if tech_skills_count == 0:
+    if technical_skills_count == 0:
         report["suggestions"].append("Technical Skills")
     
-    technical_score = technical_skills_score(tech_skills_count)
+    technical_score = technical_skills_score(technical_skills_count)
     
     report["score"] += technical_score
     report["score_breakdown"]["Technical Skills"] = {

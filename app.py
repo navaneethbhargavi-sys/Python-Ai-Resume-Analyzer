@@ -57,7 +57,7 @@ if uploaded_file is not None:
             sc_color = score_color(score, max_score)
             
             left.write(f"{section}")
-            right.write(f"{sc_color} {score}/{max_score}")
+            right.write(f"{sc_color} {score} / {max_score}")
         st.divider()
         
         left, right = st.columns(2)
@@ -70,7 +70,7 @@ if uploaded_file is not None:
         
         if report["technical_skills_count"] > 0:
             left.markdown(f'**Detected {report["technical_skills_count"]} technical skills**')
-            st.write('')
+            left.write('')
             
             for tech_skill in report["technical_skills"]:
                 left.write(f"✅ {tech_skill}")
