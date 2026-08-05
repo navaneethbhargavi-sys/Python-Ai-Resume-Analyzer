@@ -163,8 +163,7 @@ def analyze_resume(resume_text):
             SECTIONS[section]["max_score"]
         )
     
-    tech_skills = find_technical_skills(resume_text)
-    report["technical_skills"] = tech_skills
+    report["technical_skills"] = find_technical_skills(resume_text)
     
     tech_skills_count = len(report["technical_skills"])
     report["technical_skills_count"] = tech_skills_count
