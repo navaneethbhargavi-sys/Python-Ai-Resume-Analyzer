@@ -30,27 +30,34 @@ if uploaded_file is not None:
         st.header("📄 AI Resume Analysis")
         st.divider()
         ats_score = report["score"]
-        score_color = ""
         
-        if 80 <= ats_score <= 100:
-            score_color = "🟢"
-        elif 50 <= ats_score < 80:
-            score_color = "🟡"
-        elif 0 <= ats_score < 50:
-            score_color = "🔴"
+        def score_color(score, max_score):
+            percentage = (score / max_score) * 100
+            
+            if 80 <= percentage <= 100:
+                return "🟢"
+            elif 50 <= percentage < 80:
+                return "🟡"
+            elif 0 <= percentage < 50:
+                return "🔴"
         
+        ats_score_color = score_color(ats_score, 100)
         st.metric(
             label = "ATS Score",
-            value = f"{score_color} {ats_score} / 100"
+            value = f"{ats_score_color} {ats_score} / 100"
         )
         st.progress(ats_score)
         st.divider()
         
         left, right = st.columns([4, 1])
         
-        for section, points in report["score_breakdown"].items():
+        for section, details in report["score_breakdown"].items():
+            score = details["score"]
+            max_score = details["max_score"]
+            sc_color = score_color(score, max_score)
+            
             left.write(f"{section}")
-            right.write(f"{points}/20")
+            right.write(f"{sc_color} {score}/{max_score}")
         st.divider()
         
         left, right = st.columns(2)

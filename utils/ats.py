@@ -6,7 +6,7 @@ SECTIONS = {
             "Core Competencies",
             "Technologies"
         ],
-        "score": 20
+        "max_score": 20
     },
     "Education": {
         "headings": [
@@ -16,7 +16,7 @@ SECTIONS = {
             "Educational Qualifications",
             "Qualifications"
         ],
-        "score": 10
+        "max_score": 10
     },
     "Projects": {
         "headings": [
@@ -25,7 +25,7 @@ SECTIONS = {
             "Academic Projects",
             "Key Projects"
         ],
-        "score": 20
+        "max_score": 20
     },
     "Experience": {
         "headings": [
@@ -37,9 +37,11 @@ SECTIONS = {
             "Employment History",
             "Work History"
         ],
-        "score": 20
+        "max_score": 20
     }
 }
+
+MAX_TECH_SCORE = 20
 
 TECHNICAL_SKILLS = [
     "Python",
@@ -116,26 +118,26 @@ def update_report(
     resume_text, 
     headings, 
     section, 
-    score
-):
+    max_score
+):  
     if has_section(resume_text, headings):
-        report["score"] += score
-        report["score_breakdown"][section] += score
+        report["score"] += max_score
+        report["score_breakdown"][section]["score"] = max_score
         report["strengths"].append(section)
     else:
         report["weaknesses"].append(section)
         report["missing_sections"].append(section)
-
+        
 def analyze_resume(resume_text):
     report = {
         "score": 0,
-        "score_breakdown": {
-            "Skills": 0,
-            "Education": 0,
-            "Projects": 0,
-            "Experience": 0,
-            "Technical Skills": 0              
-        },
+        # "score_breakdown": {
+        #     "Skills": {},
+        #     "Education": {},
+        #     "Projects": {},
+        #     "Experience": {},
+        #     "Technical Skills": {}              
+        # },
         "strengths": [],
         "weaknesses": [],
         "missing_sections": [],
@@ -144,13 +146,21 @@ def analyze_resume(resume_text):
         "suggestions": []
     }
     
+    report["score_breakdown"] = {}
+            
+    for section in SECTIONS:
+        report["score_breakdown"][section] = {
+            "score": 0,
+            "max_score": SECTIONS[section]["max_score"]
+        }
+    
     for section in SECTIONS:
         update_report(
             report,
             resume_text,
             SECTIONS[section]["headings"],
             section,
-            SECTIONS[section]["score"]
+            SECTIONS[section]["max_score"]
         )
     
     tech_skills = find_technical_skills(resume_text)
@@ -165,6 +175,9 @@ def analyze_resume(resume_text):
     technical_score = technical_skills_score(tech_skills_count)
     
     report["score"] += technical_score
-    report["score_breakdown"]["Technical Skills"] += technical_score
+    report["score_breakdown"]["Technical Skills"] = {
+        "score": technical_score,
+        "max_score": MAX_TECH_SCORE
+    }
     
     return report
