@@ -108,10 +108,9 @@ def has_section(resume_text, headings):
 # (e.g. "C" matching "C++" thru the `in` logic)
 def find_technical_skills(resume_text):
     skills_list = []
-    lowered_resume_text = resume_text.lower()
     
     for technical_skill in TECHNICAL_SKILLS:
-        if technical_skill.lower() in lowered_resume_text:
+        if technical_skill.lower() in resume_text:
             skills_list.append(technical_skill)
             
     return skills_list
@@ -125,19 +124,27 @@ def technical_skills_score(tech_skills_count):
         return INTERMEDIATE_SKILL_SCORE
     elif tech_skills_count >= 8:
         return ADVANCED_SKILL_SCORE
-    
-def has_github_link(resume_text):
-    if "github.com" in resume_text.lower():
-        return True
-    return False
+
+def has_link(resume_text, domain):
+    return domain in resume_text
 
 def count_action_verbs(resume_text):
     verb_count = 0
     
     for action_verb in ACTION_VERBS:
-        if action_verb.lower() in resume_text.lower():
+        if action_verb.lower() in resume_text:
             verb_count += 1
-    return verb_count          
+    return verb_count  
+
+def add_suggestions(report, text):
+    report["suggestions"].append(text)        
+    
+def update_boolean_check(resume_text, report, link_key, link, result):
+    report[link_key] = has_link(resume_text, link)
+    if report[link_key]:
+        report["strengths"].append(f"{result} found")
+    else:
+        add_suggestions(report, result)
 
 def update_report(
     report, 
@@ -149,23 +156,27 @@ def update_report(
     if has_section(resume_text, headings):
         report["score"] += max_score
         report["score_breakdown"][section]["score"] = max_score
-        report["strengths"].append(section)
+        report["strengths"].append(f"{section} section found")
     else:
-        report["weaknesses"].append(section)
+        add_suggestions(report, f"Add {section} to improve your ATS score")
         report["missing_sections"].append(section)
         
 def analyze_resume(resume_text):
     report = {
         "score": 0,
         "strengths": [],
-        "weaknesses": [],
         "missing_sections": [],
         "technical_skills": [],
         "technical_skills_count": 0,
-        "github_links_found": False,
+        "github_found": False,
+        "linkedin_found": False,
+        "email_found": False,
+        "phone_num_found": False,
         "action_verbs_count": 0,
         "suggestions": []
     }
+    
+    lowered_resume_text = resume_text.lower()
     
     report["score_breakdown"] = {}
             
@@ -184,13 +195,13 @@ def analyze_resume(resume_text):
             SECTIONS[section]["max_score"]
         )
     
-    report["technical_skills"] = find_technical_skills(resume_text)
+    report["technical_skills"] = find_technical_skills(lowered_resume_text)
     
-    technical_skills_count = len(report["technical_skills"])
-    report["technical_skills_count"] = technical_skills_count
+    report["technical_skills_count"] = len(report["technical_skills"])
+    technical_skills_count = report["technical_skills_count"]
     
     if technical_skills_count == 0:
-        report["suggestions"].append("Technical Skills")
+        add_suggestions(report, "Technical Skills")
     
     technical_score = technical_skills_score(technical_skills_count)
     
@@ -200,12 +211,23 @@ def analyze_resume(resume_text):
         "max_score": MAX_TECH_SCORE
     }
     
-    report["github_links_found"] = has_github_link(resume_text)
-    if report["github_links_found"]:
-        report["strengths"].append("GitHub Links")
-    else:
-        report["suggestions"].append("GitHub Links")
+    update_boolean_check(lowered_resume_text, report, "github_found", "github.com", "GitHub Links")
     
-    report["action_verbs_count"] = count_action_verbs(resume_text)
-        
+    update_boolean_check(lowered_resume_text, report, "linkedin_found", "linkedin.com", "Linkedin Links")
+     
+    update_boolean_check(lowered_resume_text, report, "email_found", "@", "Email")   
+    
+    update_boolean_check(lowered_resume_text, report, "phone_num_found", "+91", "Phone number")  
+    
+    report["action_verbs_count"] = count_action_verbs(lowered_resume_text)
+    verb_count = report["action_verbs_count"]
+    if verb_count == 0:
+        add_suggestions(report, "Action verbs")
+    elif 1 <= verb_count < 4:
+        report["strengths"].append(f"Good use of action verbs ({verb_count} detected)")
+    elif 4 <= verb_count < 8:
+        report["strengths"].append(f"Strong use of action verbs ({verb_count} detected)")
+    elif verb_count >= 8:
+        report["strengths"].append(f"Excellent use of action verbs ({verb_count} detected)")
+      
     return report

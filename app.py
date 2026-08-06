@@ -65,7 +65,7 @@ if uploaded_file is not None:
         # left -> strengths
         left.subheader("Strengths")
         for strength in report["strengths"]:
-            left.write(f"✅ {strength} section found")
+            left.write(f"✅ {strength}")
         left.write("")
         
         if report["technical_skills_count"] > 0:
@@ -77,10 +77,8 @@ if uploaded_file is not None:
         
         # right -> suggestions
         right.subheader("Suggestions")
-        for weakness in report["weaknesses"]:
-            right.write(f"💡 Add a {weakness} section to improve your ATS score.")
         for suggestion in report["suggestions"]:
-            right.write(f"💡 Add {suggestion} to your resume to improve your ATS Score")
+            right.write(f"💡 {suggestion}")
         st.divider()
             
         st.subheader("Missing Sections")
