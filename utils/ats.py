@@ -139,7 +139,7 @@ LINK_CHECKS={
     },
     "Email": {
         "domain": "@",
-        "report_key": "Email",
+        "report_key": "email_found",
         "score": 1
     },
     "Phone number": {
@@ -159,6 +159,13 @@ def has_section(resume_text, headings):
             return True
     return False
 
+def extract_section_text(resume_text, headings):
+    for heading in headings:
+        if heading in resume_text:
+            start_index = resume_text.index(heading)
+            end_index = len(resume_text)
+                
+    return ""
 # TODO:
 # Improve technical skill matching to avoid partial matches
 # (e.g. "C" matching "C++" thru the `in` logic)
@@ -253,8 +260,9 @@ def analyze_resume(resume_text):
         "github_found": False,
         "linkedin_found": False,
         "email_found": False,
-        "phone_num_found": False,
+        "phone_number_found": False,
         "action_verbs_count": 0,
+        "word_count": 0,
         "suggestions": []
     }
     
@@ -312,5 +320,13 @@ def analyze_resume(resume_text):
         report["strengths"].append(f"Excellent use of action verbs ({verb_count} detected)")
         
     report["numbers_count"] = count_numbers(resume_text)
+    
+    report["word_count"] = len(resume_text.split())
+    
+    projects_text = extract_section_text(
+        resume_text,
+        SECTIONS["Projects"]["headings"]
+    )
+    report["projects_text"] = projects_text
       
     return report

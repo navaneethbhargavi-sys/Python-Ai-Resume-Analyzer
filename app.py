@@ -76,8 +76,9 @@ if uploaded_file is not None:
                 left.write(f"✅ {tech_skill}")
         
         left.write('')   
-        left.markdown("**📊 Quantified Data**")
+        left.markdown("**📊 Resume Statistics**")
         left.write(f"Detected {report["numbers_count"]} numbers in your resume.")
+        left.write(f"Word Count: {report["word_count"]}")
         
         # right -> suggestions
         right.subheader("Suggestions")
@@ -88,3 +89,5 @@ if uploaded_file is not None:
         st.subheader("Missing Sections")
         for missing_section in report["missing_sections"]:
             st.write(f"❌ {missing_section}")
+            
+        st.write(report["projects_text"])
