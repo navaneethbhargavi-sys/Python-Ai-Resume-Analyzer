@@ -75,6 +75,10 @@ if uploaded_file is not None:
             for tech_skill in report["technical_skills"]:
                 left.write(f"✅ {tech_skill}")
         
+        left.write('')   
+        left.markdown("**📊 Quantified Data**")
+        left.write(f"Detected {report["numbers_count"]} numbers in your resume.")
+        
         # right -> suggestions
         right.subheader("Suggestions")
         for suggestion in report["suggestions"]:
