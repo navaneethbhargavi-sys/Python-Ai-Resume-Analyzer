@@ -80,6 +80,16 @@ if uploaded_file is not None:
         left.write(f"Detected {report["numbers_count"]} numbers in your resume.")
         left.write(f"Word Count: {report["word_count"]}")
         
+        left.write(f"Action verbs count in Projects -> {report["projects_action_verbs_count"]}")
+        left.write(F"Action verbs count in Experience -> {report["experience_action_verbs_count"]}")
+        
+        left.write(
+            f"Projects action verbs: {report['projects_action_verbs_rating']}"
+        )
+        left.write(
+            f"Experience action verbs: {report['experience_action_verbs_rating']}"
+        )
+        
         # right -> suggestions
         right.subheader("Suggestions")
         for suggestion in report["suggestions"]:
@@ -89,5 +99,3 @@ if uploaded_file is not None:
         st.subheader("Missing Sections")
         for missing_section in report["missing_sections"]:
             st.write(f"❌ {missing_section}")
-            
-        st.write(report["projects_text"])

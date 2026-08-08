@@ -164,6 +164,15 @@ def extract_section_text(resume_text, headings):
         if heading in resume_text:
             start_index = resume_text.index(heading)
             end_index = len(resume_text)
+            
+            for section in SECTIONS:
+                for next_heading in SECTIONS[section]["headings"]:
+                    next_index = resume_text.find(next_heading, start_index + 1)
+                    if next_index == -1:
+                        pass
+                    elif next_index < end_index:
+                        end_index = next_index
+            return resume_text[start_index: end_index]
                 
     return ""
 # TODO:
@@ -198,6 +207,22 @@ def count_action_verbs(resume_text):
         if action_verb.lower() in resume_text:
             verb_count += 1
     return verb_count  
+
+def evaluate_action_verbs(action_verbs_count):
+    if action_verbs_count == 0:
+        return "None"
+    elif 1 <= action_verbs_count < 3:
+        return "Weak"
+    elif 3 <= action_verbs_count < 6:
+        return "Good"
+    elif action_verbs_count >= 6:
+        return "Strong"
+
+def add_action_verb_feedback(rating, report, section):
+    if rating in ["None", "Weak"]:
+        report["suggestions"].append(f"Implement better action verb usage in {section} section")
+    elif rating in ["Good", "Strong"]:
+        report["strengths"].append(f"{rating} usage of action verbs in {section} section")
 
 def count_numbers(resume_text):
     count = 0
@@ -254,16 +279,29 @@ def analyze_resume(resume_text):
     report = {
         "score": 0,
         "strengths": [],
+        "suggestions": [],
         "missing_sections": [],
+        
         "technical_skills": [],
         "technical_skills_count": 0,
+        
         "github_found": False,
         "linkedin_found": False,
         "email_found": False,
         "phone_number_found": False,
+        
         "action_verbs_count": 0,
+        "projects_action_verbs_count": 0,
+        "experience_action_verbs_count": 0,
+        
+        "projects_action_verbs_rating": "None",
+        "experience_action_verbs_rating": "None",
+        
         "word_count": 0,
-        "suggestions": []
+        "numbers_count": 0,
+        
+        "projects_text": "",
+        "experience_text": "",
     }
     
     resume_lower = resume_text.lower()
@@ -327,6 +365,32 @@ def analyze_resume(resume_text):
         resume_text,
         SECTIONS["Projects"]["headings"]
     )
+    experience_text = extract_section_text(
+        resume_text,
+        SECTIONS["Experience"]["headings"]
+    )
     report["projects_text"] = projects_text
-      
+    report["experience_text"] = experience_text
+    projects_verbs = count_action_verbs(projects_text.lower())
+    experience_verbs = count_action_verbs(experience_text.lower())
+    
+    report["projects_action_verbs_count"] = projects_verbs
+    report["experience_action_verbs_count"] = experience_verbs
+    
+    report["projects_action_verbs_rating"] = evaluate_action_verbs(projects_verbs)
+    
+    report["experience_action_verbs_rating"] = evaluate_action_verbs(experience_verbs)
+    
+    add_action_verb_feedback(
+        report["projects_action_verbs_rating"],
+        report,
+        "Projects"
+    )
+    
+    add_action_verb_feedback(
+        report["experience_action_verbs_rating"],
+        report,
+        "Experience" 
+    )
+    
     return report
