@@ -257,6 +257,24 @@ def count_numbers(resume_text):
             
     return count
 
+def evaluate_numbers(numbers_count):
+    if numbers_count == 0:
+        return "None"
+    elif 1 <= numbers_count <= 2:
+        return "Weak"
+    elif 3 <= numbers_count <= 5:
+        return "Good"
+    elif numbers_count >= 6:
+        return "Strong"
+
+def add_number_feedback(rating, report):
+    if rating == "None":
+        report["suggestions"].append("Quantify your achievements by numbers.")
+    elif rating == "Weak":
+        report["suggestions"].append("Consider including more measurable results in your resume.")
+    elif rating in ["Good", "Strong"]:
+        report["strengths"].append(f"{rating} use of quantified information.")
+
 def add_suggestions(report, item):
     report["suggestions"].append(f"Add {item} to improve your ATS score")        
 
@@ -351,7 +369,9 @@ def analyze_resume(resume_text):
         "experience_word_rating": "Too Short",
         
         "word_count": 0,
+        
         "numbers_count": 0,
+        "numbers_rating": 0,
         
         "projects_text": "",
         "experience_text": "",
@@ -411,6 +431,8 @@ def analyze_resume(resume_text):
         report["strengths"].append(f"Excellent use of action verbs ({verb_count} detected)")
         
     report["numbers_count"] = count_numbers(resume_text)
+    report["numbers_rating"] = evaluate_numbers(report["numbers_count"])
+    add_number_feedback(report["numbers_rating"], report)
     
     report["word_count"] = len(resume_text.split())
     

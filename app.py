@@ -102,3 +102,5 @@ if uploaded_file is not None:
         st.subheader("Missing Sections")
         for missing_section in report["missing_sections"]:
             st.write(f"❌ {missing_section}")
+            
+        st.write(report)
