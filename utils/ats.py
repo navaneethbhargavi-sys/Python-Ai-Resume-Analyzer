@@ -293,7 +293,35 @@ def update_section(
     else:
         add_suggestions(report, section)
         report["missing_sections"].append(section)
-        
+
+def analyze_section(resume_text, report, section):
+    lower_key = section.lower()
+    result = {}
+    
+    text = extract_section_text(
+        resume_text,
+        SECTIONS[section]["headings"]
+    )
+    result[f"{lower_key}_text"] = text
+    
+    result[f"{lower_key}_word_count"] = len(text.split())
+    result[f"{lower_key}_word_rating"] =  evaluate_section_length(result[f"{lower_key}_word_count"])
+    add_section_length_feedback(
+        result[f"{lower_key}_word_rating"], 
+        report, 
+        section
+    )
+    
+    result[f"{lower_key}_action_verbs_count"] = count_action_verbs(text.lower())
+    result[f"{lower_key}_action_verbs_rating"] = evaluate_action_verbs(result[f"{lower_key}_action_verbs_count"])
+    add_action_verb_feedback(
+        result[f"{lower_key}_action_verbs_rating"],
+        report,
+        section
+    )
+    
+    return result
+
 def analyze_resume(resume_text):
     report = {
         "score": 0,
@@ -386,51 +414,13 @@ def analyze_resume(resume_text):
     
     report["word_count"] = len(resume_text.split())
     
-    projects_text = extract_section_text(
-        resume_text,
-        SECTIONS["Projects"]["headings"]
-    )
-    experience_text = extract_section_text(
-        resume_text,
-        SECTIONS["Experience"]["headings"]
-    )
-    report["projects_text"] = projects_text
-    report["experience_text"] = experience_text
-    projects_verbs = count_action_verbs(projects_text.lower())
-    experience_verbs = count_action_verbs(experience_text.lower())
+    analyzed_sections = []
     
-    projects_word_count = len(projects_text.split())
-    experience_word_count = len(experience_text.split())
+    analyzed_sections.append(analyze_section(resume_text, report, "Projects"))
+    analyzed_sections.append(analyze_section(resume_text,report, "Experience"))
     
-    projects_word_rating = evaluate_section_length(projects_word_count)
-    experience_word_rating = evaluate_section_length(experience_word_count)
-    
-    report["projects_word_rating"] = projects_word_rating
-    report["experience_word_rating"] = experience_word_rating
-    
-    add_section_length_feedback(projects_word_rating, report, "Projects")
-    add_section_length_feedback(experience_word_rating, report, "Experience")
-    
-    report["projects_word_count"] = projects_word_count
-    report["experience_word_count"] = experience_word_count
-    
-    report["projects_action_verbs_count"] = projects_verbs
-    report["experience_action_verbs_count"] = experience_verbs
-    
-    report["projects_action_verbs_rating"] = evaluate_action_verbs(projects_verbs)
-    
-    report["experience_action_verbs_rating"] = evaluate_action_verbs(experience_verbs)
-    
-    add_action_verb_feedback(
-        report["projects_action_verbs_rating"],
-        report,
-        "Projects"
-    )
-    
-    add_action_verb_feedback(
-        report["experience_action_verbs_rating"],
-        report,
-        "Experience" 
-    )
+    for analyzed_section in analyzed_sections:
+        for key, value in analyzed_section.items():
+            report[key] = value
     
     return report
