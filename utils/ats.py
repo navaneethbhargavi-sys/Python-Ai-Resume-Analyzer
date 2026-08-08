@@ -159,22 +159,9 @@ def has_section(resume_text, headings):
             return True
     return False
 
-def extract_section_text(resume_text, headings):
-    for heading in headings:
-        if heading in resume_text:
-            start_index = resume_text.index(heading)
-            end_index = len(resume_text)
-            
-            for section in SECTIONS:
-                for next_heading in SECTIONS[section]["headings"]:
-                    next_index = resume_text.find(next_heading, start_index + 1)
-                    if next_index == -1:
-                        pass
-                    elif next_index < end_index:
-                        end_index = next_index
-            return resume_text[start_index: end_index]
-                
-    return ""
+def has_link(resume_text, domain):
+    return domain in resume_text
+
 # TODO:
 # Improve technical skill matching to avoid partial matches
 # (e.g. "C" matching "C++" thru the `in` logic)
@@ -196,9 +183,39 @@ def technical_skills_score(tech_skills_count):
         return INTERMEDIATE_SKILL_SCORE
     elif tech_skills_count >= 8:
         return ADVANCED_SKILL_SCORE
+    
+def extract_section_text(resume_text, headings):
+    for heading in headings:
+        if heading in resume_text:
+            start_index = resume_text.index(heading)
+            end_index = len(resume_text)
+            
+            for section in SECTIONS:
+                for next_heading in SECTIONS[section]["headings"]:
+                    next_index = resume_text.find(next_heading, start_index + 1)
+                    if next_index == -1:
+                        pass
+                    elif next_index < end_index:
+                        end_index = next_index
+            return resume_text[start_index: end_index]
+                
+    return ""
 
-def has_link(resume_text, domain):
-    return domain in resume_text
+def evaluate_section_length(word_count):
+    if 0 < word_count <= 30:
+        return "Too Short"
+    elif 30 <= word_count <= 150:
+        return "Good"
+    elif word_count > 150:
+        return "Too Long" 
+    
+def add_section_length_feedback(rating, report, section):
+    if rating == "Too Short":
+        report["suggestions"].append(f"Your {section} section may need more detail")
+    elif rating == "Good":
+        report["strengths"].append(f"Sufficient detail in your {section} section")
+    elif rating == "Too Long":
+        report["suggestions"].append(f"Consider making your {section} section more concise")
 
 def count_action_verbs(resume_text):
     verb_count = 0
@@ -219,8 +236,10 @@ def evaluate_action_verbs(action_verbs_count):
         return "Strong"
 
 def add_action_verb_feedback(rating, report, section):
-    if rating in ["None", "Weak"]:
-        report["suggestions"].append(f"Implement better action verb usage in {section} section")
+    if rating == "None":
+        report["suggestions"].append(f"Add action verbs such as Built, Developed, Implemented, Designed, etc to your {section} section")
+    elif rating == "Weak":
+        report["suggestions"].append(f"Replace generic wording with stronger action verbs in your {section} section to make your achievements more impactful.")
     elif rating in ["Good", "Strong"]:
         report["strengths"].append(f"{rating} usage of action verbs in {section} section")
 
@@ -294,8 +313,14 @@ def analyze_resume(resume_text):
         "projects_action_verbs_count": 0,
         "experience_action_verbs_count": 0,
         
+        "projects_word_count": 0,
+        "experience_word_count": 0,
+        
         "projects_action_verbs_rating": "None",
         "experience_action_verbs_rating": "None",
+        
+        "projects_word_rating": "Too Short",
+        "experience_word_rating": "Too Short",
         
         "word_count": 0,
         "numbers_count": 0,
@@ -373,6 +398,21 @@ def analyze_resume(resume_text):
     report["experience_text"] = experience_text
     projects_verbs = count_action_verbs(projects_text.lower())
     experience_verbs = count_action_verbs(experience_text.lower())
+    
+    projects_word_count = len(projects_text.split())
+    experience_word_count = len(experience_text.split())
+    
+    projects_word_rating = evaluate_section_length(projects_word_count)
+    experience_word_rating = evaluate_section_length(experience_word_count)
+    
+    report["projects_word_rating"] = projects_word_rating
+    report["experience_word_rating"] = experience_word_rating
+    
+    add_section_length_feedback(projects_word_rating, report, "Projects")
+    add_section_length_feedback(experience_word_rating, report, "Experience")
+    
+    report["projects_word_count"] = projects_word_count
+    report["experience_word_count"] = experience_word_count
     
     report["projects_action_verbs_count"] = projects_verbs
     report["experience_action_verbs_count"] = experience_verbs

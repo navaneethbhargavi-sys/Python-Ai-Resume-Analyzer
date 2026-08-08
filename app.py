@@ -80,6 +80,9 @@ if uploaded_file is not None:
         left.write(f"Detected {report["numbers_count"]} numbers in your resume.")
         left.write(f"Word Count: {report["word_count"]}")
         
+        left.write(f"Projects: {report["projects_word_count"]} words")
+        left.write(f"Experience: {report["experience_word_count"]} words")
+        
         left.write(f"Action verbs count in Projects -> {report["projects_action_verbs_count"]}")
         left.write(F"Action verbs count in Experience -> {report["experience_action_verbs_count"]}")
         
