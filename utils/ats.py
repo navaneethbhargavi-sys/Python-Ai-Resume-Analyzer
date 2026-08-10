@@ -128,27 +128,27 @@ ACTION_VERBS = [
     "Led"
 ]
 
-LINK_CHECKS={
+LINK_CHECKS = {
     "GitHub Links": {
-        "domain": "github.com",
+        "pattern": r"github\.com/[A-Za-z0-9_-]+",
         "report_key": "github_found",
         "score": 5
     },
     "Linkedin Links": {
-        "domain": "linkedin.com",
+        "pattern": r"linkedin\.com/(?:in|pub)/[A-Za-z0-9_-]+",
         "report_key": "linkedin_found",
         "score": 3
     },
     "Email": {
-        "domain": "@",
+        "pattern": r"[A-Za-z0-9._]+@[A-Za-z0-9.-]+\.[A-Za-z]+",
         "report_key": "email_found",
         "score": 1
     },
     "Phone number": {
-        "domain": "+91",
+        "pattern": r"\+91[\s-]?[6-9]\d{9}",
         "report_key": "phone_number_found",
         "score": 1
-    },
+    }
 }
 
 BEGINNER_SKILL_SCORE = 5
@@ -163,8 +163,8 @@ def has_section(resume_text, headings):
             return True
     return False
 
-def has_link(resume_text, domain):
-    return domain in resume_text
+def has_link(resume_text, pattern):
+    return bool(re.search(pattern, resume_text, re.IGNORECASE))
 
 # TODO:
 # Improve technical skill matching to avoid partial matches
@@ -461,7 +461,7 @@ def analyze_resume(resume_text):
             resume_lower,
             report,
             details["report_key"],
-            details["domain"],
+            details["pattern"],
             label,
             details["score"]
         )
