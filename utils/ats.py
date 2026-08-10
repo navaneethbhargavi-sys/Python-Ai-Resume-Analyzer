@@ -1,3 +1,5 @@
+import re
+
 SECTIONS = {
     "Skills": {
         "headings": [
@@ -155,7 +157,9 @@ ADVANCED_SKILL_SCORE = 20
 
 def has_section(resume_text, headings):
     for heading in headings:
-        if heading in resume_text:
+        pattern = rf"\b{heading}\b"
+        
+        if re.search(pattern, resume_text, re.IGNORECASE):
             return True
     return False
 
@@ -165,11 +169,17 @@ def has_link(resume_text, domain):
 # TODO:
 # Improve technical skill matching to avoid partial matches
 # (e.g. "C" matching "C++" thru the `in` logic)
+# Fixed
 def find_technical_skills(resume_text):
     skills_list = []
     
+    # for technical_skill in TECHNICAL_SKILLS:
+    #     if technical_skill.lower() in resume_text:
+    #         skills_list.append(technical_skill)
     for technical_skill in TECHNICAL_SKILLS:
-        if technical_skill.lower() in resume_text:
+        pattern = rf"(?<![A-Za-z0-9]){re.escape(technical_skill)}(?![A-Za-z0-9])"
+        
+        if re.search(pattern, resume_text, re.IGNORECASE):
             skills_list.append(technical_skill)
             
     return skills_list
@@ -184,6 +194,24 @@ def technical_skills_score(tech_skills_count):
     elif tech_skills_count >= 8:
         return ADVANCED_SKILL_SCORE
     
+def technical_skills_rating(tech_count):
+    if tech_count == 0:
+        return "None"
+    elif 1 <= tech_count <= 3:
+        return "Weak"
+    elif 4 <= tech_count <= 7:
+        return "Good"
+    elif tech_count >= 8:
+        return "Strong"
+    
+def add_tech_skills_feedback(report, tech_rating):
+    if tech_rating == "None":
+        report["suggestions"].append("Add technical skills like Python, SQL, Git, etc")
+    elif tech_rating == "Weak":
+        report["suggestions"].append("Include more skills like Python, SQL, Git, etc")
+    elif tech_rating in ["Good", "Strong"]:
+        report["strengths"].append(f"{tech_rating} use of technical skills")
+    
 def extract_section_text(resume_text, headings):
     for heading in headings:
         if heading in resume_text:
@@ -197,7 +225,22 @@ def extract_section_text(resume_text, headings):
                         pass
                     elif next_index < end_index:
                         end_index = next_index
+                        
             return resume_text[start_index: end_index]
+        
+        elif heading.upper() in resume_text:
+            start_index = resume_text.index(heading.upper())
+            end_index_upper = len(resume_text)
+            
+            for section in SECTIONS:
+                for next_heading in SECTIONS[section]["headings"]:
+                    next_index_upper = resume_text.find(next_heading.upper(), start_index + 1)
+                    if next_index_upper == -1:
+                        pass
+                    elif next_index_upper < end_index_upper:
+                        end_index_upper = next_index_upper
+                   
+            return resume_text[start_index: end_index_upper]
                 
     return ""
 
@@ -349,6 +392,7 @@ def analyze_resume(resume_text):
         
         "technical_skills": [],
         "technical_skills_count": 0,
+        "technical_skills_rating": "None",
         
         "github_found": False,
         "linkedin_found": False,
@@ -371,7 +415,7 @@ def analyze_resume(resume_text):
         "word_count": 0,
         
         "numbers_count": 0,
-        "numbers_rating": 0,
+        "numbers_rating": "None",
         
         "projects_text": "",
         "experience_text": "",
@@ -408,6 +452,9 @@ def analyze_resume(resume_text):
     
     report["score"] += technical_score
     report["score_breakdown"]["Technical Skills"]["score"] = technical_score
+    
+    report["technical_skills_rating"] = technical_skills_rating(technical_skills_count)
+    add_tech_skills_feedback(report, report["technical_skills_rating"])
     
     for label, details in LINK_CHECKS.items():
         evaluate_link(

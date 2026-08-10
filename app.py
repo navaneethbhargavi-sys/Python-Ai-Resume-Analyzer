@@ -70,37 +70,58 @@ if uploaded_file is not None:
         
         if report["technical_skills_count"] > 0:
             left.markdown(f'**Detected {report["technical_skills_count"]} technical skills**')
-            left.write('')
             
             for tech_skill in report["technical_skills"]:
                 left.write(f"✅ {tech_skill}")
-        
-        left.write('')   
-        left.markdown("**📊 Resume Statistics**")
-        left.write(f"Detected {report["numbers_count"]} numbers in your resume.")
-        left.write(f"Word Count: {report["word_count"]}")
-        
-        left.write(f"Projects: {report["projects_word_count"]} words")
-        left.write(f"Experience: {report["experience_word_count"]} words")
-        
-        left.write(f"Action verbs count in Projects -> {report["projects_action_verbs_count"]}")
-        left.write(F"Action verbs count in Experience -> {report["experience_action_verbs_count"]}")
-        
-        left.write(
-            f"Projects action verbs: {report['projects_action_verbs_rating']}"
-        )
-        left.write(
-            f"Experience action verbs: {report['experience_action_verbs_rating']}"
-        )
         
         # right -> suggestions
         right.subheader("Suggestions")
         for suggestion in report["suggestions"]:
             right.write(f"💡 {suggestion}")
-        st.divider()
+        st.divider();
             
-        st.subheader("Missing Sections")
+        missing_sections_subhead = right.empty()
+        missing_sections_subhead.subheader("Missing Sections")
         for missing_section in report["missing_sections"]:
-            st.write(f"❌ {missing_section}")
+            right.write(f"❌ {missing_section}")
+        if not report["missing_sections"]:
+            # st.write("None")
+            missing_sections_subhead.empty()
+               
+        st.subheader("📊 Resume Statistics")
+        
+        stat_left, stat_right = st.columns([4, 2])
+        stat_left.write("Number count")
+        stat_right.write(f"{report["numbers_count"]}")
+        
+        stat_left.write("Quantification strength")
+        stat_right.write(f"{report["numbers_rating"]}")
+        
+        stat_left.write("Word count")
+        stat_right.write(f"{report["word_count"]}")
+        
+        stat_left.write("Words in Projects section")
+        stat_right.write(f"{report["projects_word_count"]}")
+        
+        stat_left.write("Words in Experience section")
+        stat_right.write(f"{report["experience_word_count"]}")
+        
+        stat_left.write("Projects word count strength")
+        stat_right.write(f"{report['projects_word_rating']}")
+
+        stat_left.write("Experience word count strength")
+        stat_right.write(f"{report['experience_word_rating']}")
+        
+        stat_left.write("Projects Action verbs")
+        stat_right.write(f"{report["projects_action_verbs_count"]}")
+        
+        stat_left.write("Experience Action verbs")
+        stat_right.write(f"{report["experience_action_verbs_count"]}")
+        
+        stat_left.write("Projects action verbs strength")
+        stat_right.write(f"{report['projects_action_verbs_rating']}")
+        
+        stat_left.write("Experience action verbs strength")
+        stat_right.write(f"{report['experience_action_verbs_rating']}")
             
-        st.write(report)
+            
