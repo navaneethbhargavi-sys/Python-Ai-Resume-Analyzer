@@ -214,33 +214,26 @@ def add_tech_skills_feedback(report, tech_rating):
     
 def extract_section_text(resume_text, headings):
     for heading in headings:
-        if heading in resume_text:
-            start_index = resume_text.index(heading)
+        pattern = rf"^[ \t]*{re.escape(heading)}[ \t]*$"
+        match = re.search(pattern, resume_text, re.IGNORECASE | re.MULTILINE)
+        if match:
+            start_index = match.start()
+            print(resume_text[start_index])
             end_index = len(resume_text)
             
             for section in SECTIONS:
                 for next_heading in SECTIONS[section]["headings"]:
-                    next_index = resume_text.find(next_heading, start_index + 1)
-                    if next_index == -1:
-                        pass
-                    elif next_index < end_index:
+                    next_pattern = rf"^[ \t]*{re.escape(next_heading)}[ \t]*$"
+                    next_match = re.search(next_pattern, resume_text[start_index + 1:], re.IGNORECASE | re.MULTILINE)
+                    
+                    if next_match is None:
+                        continue
+                    
+                    next_index = start_index + 1 + next_match.start() 
+                    if next_index < end_index:
                         end_index = next_index
-                        
+            print(end_index)      
             return resume_text[start_index: end_index]
-        
-        elif heading.upper() in resume_text:
-            start_index = resume_text.index(heading.upper())
-            end_index_upper = len(resume_text)
-            
-            for section in SECTIONS:
-                for next_heading in SECTIONS[section]["headings"]:
-                    next_index_upper = resume_text.find(next_heading.upper(), start_index + 1)
-                    if next_index_upper == -1:
-                        pass
-                    elif next_index_upper < end_index_upper:
-                        end_index_upper = next_index_upper
-                   
-            return resume_text[start_index: end_index_upper]
                 
     return ""
 
@@ -458,7 +451,7 @@ def analyze_resume(resume_text):
     
     for label, details in LINK_CHECKS.items():
         evaluate_link(
-            resume_lower,
+            resume_text,
             report,
             details["report_key"],
             details["pattern"],

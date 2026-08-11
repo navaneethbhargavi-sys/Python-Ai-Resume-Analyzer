@@ -123,5 +123,7 @@ if uploaded_file is not None:
         
         stat_left.write("Experience action verbs strength")
         stat_right.write(f"{report['experience_action_verbs_rating']}")
+        
+        st.write(report)
             
             
