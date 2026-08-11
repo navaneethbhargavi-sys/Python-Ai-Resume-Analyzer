@@ -145,7 +145,7 @@ LINK_CHECKS = {
         "score": 1
     },
     "Phone number": {
-        "pattern": r"\+91[\s-]?[6-9]\d{9}",
+        "pattern": r"(\+91[\s-])?[6-9]\d{9}",
         "report_key": "phone_number_found",
         "score": 1
     }
