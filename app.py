@@ -78,7 +78,7 @@ if uploaded_file is not None:
         right.subheader("Suggestions")
         for suggestion in report["suggestions"]:
             right.write(f"💡 {suggestion}")
-        st.divider();
+        st.divider()
             
         missing_sections_subhead = right.empty()
         missing_sections_subhead.subheader("Missing Sections")
@@ -112,14 +112,26 @@ if uploaded_file is not None:
         stat_left.write("Experience word count strength")
         stat_right.write(f"{report['experience_word_rating']}")
         
+        stat_left.write("Action verb occurrences")
+        stat_right.write(f"{report["action_verbs_count"]}")
+        
+        stat_left.write("Unique action verbs")
+        stat_right.write(f"{report["unique_action_verbs"]}")
+        
         stat_left.write("Projects Action verbs")
         stat_right.write(f"{report["projects_action_verbs_count"]}")
+        
+        stat_left.write("Unique projects action verbs")
+        stat_right.write(f"{report["projects_unique_action_verbs_count"]}")
+        
+        stat_left.write("Projects action verbs strength")
+        stat_right.write(f"{report['projects_action_verbs_rating']}")
         
         stat_left.write("Experience Action verbs")
         stat_right.write(f"{report["experience_action_verbs_count"]}")
         
-        stat_left.write("Projects action verbs strength")
-        stat_right.write(f"{report['projects_action_verbs_rating']}")
+        stat_left.write("Unique experience action verbs")
+        stat_right.write(f"{report["experience_unique_action_verbs_count"]}")
         
         stat_left.write("Experience action verbs strength")
         stat_right.write(f"{report['experience_action_verbs_rating']}")

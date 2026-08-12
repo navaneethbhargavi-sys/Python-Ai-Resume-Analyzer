@@ -253,13 +253,16 @@ def add_section_length_feedback(rating, report, section):
     elif rating == "Too Long":
         report["suggestions"].append(f"Consider making your {section} section more concise")
 
-def count_action_verbs(resume_text):
-    verb_count = 0
+def find_action_verbs(resume_text):
+    freq_dict = {}
     
     for action_verb in ACTION_VERBS:
-        if action_verb.lower() in resume_text:
-            verb_count += 1
-    return verb_count  
+        pattern = rf"\b{re.escape(action_verb)}\b"
+        matches = re.findall(pattern, resume_text, re.IGNORECASE)
+        
+        if matches: 
+            freq_dict[action_verb] = len(matches)
+    return freq_dict
 
 def evaluate_action_verbs(action_verbs_count):
     if action_verbs_count == 0:
@@ -366,7 +369,12 @@ def analyze_section(resume_text, report, section):
         section
     )
     
-    result[f"{lower_key}_action_verbs_count"] = count_action_verbs(text.lower())
+    action_verbs = find_action_verbs(text).values()   
+    total_action_verbs = sum(action_verbs)
+    unique_action_verbs = len(action_verbs)
+    
+    result[f"{lower_key}_action_verbs_count"] = total_action_verbs
+    result[f"{lower_key}_unique_action_verbs_count"] = unique_action_verbs
     result[f"{lower_key}_action_verbs_rating"] = evaluate_action_verbs(result[f"{lower_key}_action_verbs_count"])
     add_action_verb_feedback(
         result[f"{lower_key}_action_verbs_rating"],
@@ -395,6 +403,9 @@ def analyze_resume(resume_text):
         "action_verbs_count": 0,
         "projects_action_verbs_count": 0,
         "experience_action_verbs_count": 0,
+        
+        "projects_unique_action_verbs_count": 0,
+        "experience_unique_action_verbs_count": 0,
         
         "projects_word_count": 0,
         "experience_word_count": 0,
@@ -459,8 +470,11 @@ def analyze_resume(resume_text):
             details["score"]
         )
     
-    verb_count = count_action_verbs(resume_lower)
+    verb_count = sum(find_action_verbs(resume_text).values())
+    unique_action_verbs = len(find_action_verbs(resume_text).values())
     report["action_verbs_count"] = verb_count
+    report["unique_action_verbs"] = unique_action_verbs
+    
     if verb_count == 0:
         add_suggestions(report, "Action verbs")
     elif 1 <= verb_count < 4:
