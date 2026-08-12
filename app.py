@@ -87,6 +87,22 @@ if uploaded_file is not None:
         if not report["missing_sections"]:
             # st.write("None")
             missing_sections_subhead.empty()
+            
+        def action_verbs_freq_display(action_verbs_frequency, section):
+            st.write(section)
+            
+            if not action_verbs_frequency:
+                st.write("None detected")
+                st.write('')
+                return
+            
+            act_left, act_right = st.columns([4, 2]) 
+            
+            for verb, frequency in action_verbs_frequency.items():
+                act_left.write(verb)
+                act_right.write(f"{frequency}")
+                
+            st.write('')
                
         st.subheader("📊 Resume Statistics")
         
@@ -112,7 +128,7 @@ if uploaded_file is not None:
         stat_left.write("Experience word count strength")
         stat_right.write(f"{report['experience_word_rating']}")
         
-        stat_left.write("Action verb occurrences")
+        stat_left.write("Total action verb occurrences")
         stat_right.write(f"{report["action_verbs_count"]}")
         
         stat_left.write("Unique action verbs")
@@ -135,7 +151,19 @@ if uploaded_file is not None:
         
         stat_left.write("Experience action verbs strength")
         stat_right.write(f"{report['experience_action_verbs_rating']}")
+        stat_left.write('')
+        
+        st.markdown("**Action Verb Frequency**")
+        st.write('')
+        
+        action_verbs_freq_display(
+            report["projects_action_verbs_frequency"],
+            "Projects"
+        )
+        
+        action_verbs_freq_display(
+            report["experience_action_verbs_frequency"],
+            "Experience"
+        )
         
         st.write(report)
-            
-            

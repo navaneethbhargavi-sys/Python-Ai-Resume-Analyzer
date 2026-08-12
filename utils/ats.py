@@ -369,10 +369,11 @@ def analyze_section(resume_text, report, section):
         section
     )
     
-    action_verbs = find_action_verbs(text).values()   
-    total_action_verbs = sum(action_verbs)
-    unique_action_verbs = len(action_verbs)
+    action_verbs = find_action_verbs(text)  
+    total_action_verbs = sum(action_verbs.values())
+    unique_action_verbs = len(action_verbs.values())
     
+    result[f"{lower_key}_action_verbs_frequency"] = action_verbs
     result[f"{lower_key}_action_verbs_count"] = total_action_verbs
     result[f"{lower_key}_unique_action_verbs_count"] = unique_action_verbs
     result[f"{lower_key}_action_verbs_rating"] = evaluate_action_verbs(result[f"{lower_key}_action_verbs_count"])
@@ -400,10 +401,14 @@ def analyze_resume(resume_text):
         "email_found": False,
         "phone_number_found": False,
         
+        "action_verbs_frequency": {},
         "action_verbs_count": 0,
+        
+        "projects_action_verbs_frequency": {},
         "projects_action_verbs_count": 0,
         "experience_action_verbs_count": 0,
         
+        "experience_action_verbs_frequency": {},
         "projects_unique_action_verbs_count": 0,
         "experience_unique_action_verbs_count": 0,
         
@@ -470,6 +475,7 @@ def analyze_resume(resume_text):
             details["score"]
         )
     
+    report["action_verbs_frequency"] = find_action_verbs(resume_text)
     verb_count = sum(find_action_verbs(resume_text).values())
     unique_action_verbs = len(find_action_verbs(resume_text).values())
     report["action_verbs_count"] = verb_count
