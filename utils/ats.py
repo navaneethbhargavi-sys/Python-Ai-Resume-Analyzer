@@ -218,7 +218,6 @@ def extract_section_text(resume_text, headings):
         match = re.search(pattern, resume_text, re.IGNORECASE | re.MULTILINE)
         if match:
             start_index = match.start()
-            print(resume_text[start_index])
             end_index = len(resume_text)
             
             for section in SECTIONS:
@@ -232,7 +231,7 @@ def extract_section_text(resume_text, headings):
                     next_index = start_index + 1 + next_match.start() 
                     if next_index < end_index:
                         end_index = next_index
-            print(end_index)      
+     
             return resume_text[start_index: end_index]
                 
     return ""
@@ -261,7 +260,9 @@ def find_action_verbs(resume_text):
         matches = re.findall(pattern, resume_text, re.IGNORECASE)
         
         if matches: 
-            freq_dict[action_verb] = len(matches)
+            freq_dict[action_verb] = {}
+            freq_dict[action_verb]["frequency"] = len(matches)
+            freq_dict[action_verb]["rating"] = "None"
     return freq_dict
 
 def evaluate_action_verbs(action_verbs_count):
@@ -281,6 +282,24 @@ def add_action_verb_feedback(rating, report, section):
         report["suggestions"].append(f"Replace generic wording with stronger action verbs in your {section} section to make your achievements more impactful.")
     elif rating in ["Good", "Strong"]:
         report["strengths"].append(f"{rating} usage of action verbs in {section} section")
+        
+def evaluate_action_verbs_frequency(verb_frequency):
+    if verb_frequency in [1, 2]:
+        return "Optimum"
+    elif verb_frequency == 3:
+        return "Worth varying"
+    elif verb_frequency >= 4:
+        return "Overused"
+
+def add_action_verb_freq_feedback(rating, report, verb, frequency, section):
+    if rating == "None":
+        pass
+    elif rating == "Optimum":
+        report["strengths"].append(f"Optimum frequency maintained for action verbs for your {section} section")
+    elif rating == "Worth Varying":
+        report["suggestions"].append(f"{section}: \"{verb}\" is used {frequency} times. Consider varying your action verbs")
+    elif rating == "Overused":
+        report["suggestions"].append(f"{section}: \"{verb}\" is overused. Consider limiting the use of this action verb")
 
 def count_numbers(resume_text):
     count = 0
@@ -370,10 +389,41 @@ def analyze_section(resume_text, report, section):
     )
     
     action_verbs = find_action_verbs(text)  
-    total_action_verbs = sum(action_verbs.values())
-    unique_action_verbs = len(action_verbs.values())
+    
+    total_action_verbs = 0
+    
+    for verb, details in action_verbs.items():
+        total_action_verbs += details["frequency"]
+
+    unique_action_verbs = len(action_verbs.keys())
     
     result[f"{lower_key}_action_verbs_frequency"] = action_verbs
+    
+    all_optimum = True
+    for verb, details in action_verbs.items():
+        details["rating"] = evaluate_action_verbs_frequency(details["frequency"])
+        
+        if details["rating"] == "Optimum":
+            pass
+        else:     
+            all_optimum = False
+            add_action_verb_freq_feedback(
+                details["rating"],
+                report,
+                verb,
+                details["frequency"],
+                section
+            )
+    
+    if all_optimum:
+        add_action_verb_freq_feedback(
+            "Optimum",
+            report,
+            "",
+            "",
+            section
+        )
+        
     result[f"{lower_key}_action_verbs_count"] = total_action_verbs
     result[f"{lower_key}_unique_action_verbs_count"] = unique_action_verbs
     result[f"{lower_key}_action_verbs_rating"] = evaluate_action_verbs(result[f"{lower_key}_action_verbs_count"])
@@ -475,9 +525,13 @@ def analyze_resume(resume_text):
             details["score"]
         )
     
-    report["action_verbs_frequency"] = find_action_verbs(resume_text)
-    verb_count = sum(find_action_verbs(resume_text).values())
-    unique_action_verbs = len(find_action_verbs(resume_text).values())
+    action_verbs = find_action_verbs(resume_text)
+    report["action_verbs_frequency"] = action_verbs
+    verb_count = 0
+    for verb, details in action_verbs.items():
+        verb_count += details["frequency"]
+        
+    unique_action_verbs = len(action_verbs.keys())
     report["action_verbs_count"] = verb_count
     report["unique_action_verbs"] = unique_action_verbs
     

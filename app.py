@@ -98,9 +98,9 @@ if uploaded_file is not None:
             
             act_left, act_right = st.columns([4, 2]) 
             
-            for verb, frequency in action_verbs_frequency.items():
+            for verb, details in action_verbs_frequency.items():
                 act_left.write(verb)
-                act_right.write(f"{frequency}")
+                act_right.write(f"{details["frequency"]}")
                 
             st.write('')
                
