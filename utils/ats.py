@@ -297,9 +297,19 @@ def add_action_verb_freq_feedback(rating, report, verb, frequency, section):
     elif rating == "Optimum":
         report["strengths"].append(f"Optimum frequency maintained for action verbs for your {section} section")
     elif rating == "Worth Varying":
-        report["suggestions"].append(f"{section}: \"{verb}\" is used {frequency} times. Consider varying your action verbs")
+        report["suggestions"].append(f'{section}: "{verb}" is used {frequency} times. Consider varying your action verbs')
     elif rating == "Overused":
-        report["suggestions"].append(f"{section}: \"{verb}\" is overused. Consider limiting the use of this action verb")
+        alternatives = []
+        
+        for action_verb in ACTION_VERBS:
+            if action_verb != verb:
+                alternatives.append(action_verb)
+            if len(alternatives) == 3:
+                break
+                
+        alternatives_text = ", ".join(alternatives[: -1]) + f", or {alternatives[-1]}"
+        
+        report["suggestions"].append(f"{section}: \"{verb}\" is overused. Consider alternatives such as {alternatives_text}")
 
 def count_numbers(resume_text):
     count = 0
