@@ -145,11 +145,26 @@ LINK_CHECKS = {
         "score": 1
     },
     "Phone number": {
-        "pattern": r"(\+91[\s-])?[6-9]\d{9}",
+        "pattern": r"(?:\+91[\s-])?[6-9]\d{9}",
         "report_key": "phone_number_found",
         "score": 1
     }
 }
+
+EDUCATION_NUMBER_KEYWORDS = [
+    "class",
+    "percentage",
+    "gpa",
+    "cgpa"
+]
+
+EDUCATION_PATTERNS = [
+    r"\b(?:X|XI|XII)(?:th)?\b"
+]
+
+PERCENTAGE_PATTERNS = [
+    r"%"
+]
 
 BEGINNER_SKILL_SCORE = 5
 INTERMEDIATE_SKILL_SCORE = 10
@@ -311,19 +326,81 @@ def add_action_verb_freq_feedback(rating, report, verb, frequency, section):
         
         report["suggestions"].append(f"{section}: \"{verb}\" is overused. Consider alternatives such as {alternatives_text}")
 
-def count_numbers(resume_text):
-    count = 0
-    inside_number = False
+def count_relevant_numbers(resume_text, number_context_list):
+    relevant_number_count = 0
     
-    for element in resume_text:
-        if element.isdigit():
-            if not inside_number:
-                count += 1
-            inside_number = True
-        else: 
-            inside_number = False
-            
-    return count
+    for number_context in number_context_list:
+        if not number_context["excluded"]:
+            relevant_number_count += 1
+    return relevant_number_count
+    
+def find_number_context(resume_text, excluded_numbers):
+    print("Excluded numbers:", excluded_numbers)
+    number_matches = re.finditer(r"\d+", resume_text)
+    
+    number_context_list = []
+    
+    for match in number_matches:
+        start, end = match.start(), match.end()
+        
+        context_start = max(0, start - 15)
+        context_end = min(len(resume_text), end + 15)
+        
+        context = resume_text[context_start: context_end]
+
+        item = {}
+        item["number"] = match.group()
+        item["context"] = context
+        item["excluded"] = (
+            match.group() in excluded_numbers
+            or is_education_number(context)
+        )
+        
+        number_context_list.append(item)
+        
+        print(
+            match.group(),
+            "Education:", is_education_number(context),
+            "Excluded:", item["excluded"]
+        )
+        
+    return number_context_list
+
+def find_excluded_numbers(resume_text):
+    year_pattern = r"\b[\d]{4}\b"
+    phone_number_pattern = LINK_CHECKS["Phone number"]["pattern"]
+    phone_numbers = []
+    
+    year_list = re.findall(year_pattern, resume_text)
+    phone_matches = re.findall(phone_number_pattern, resume_text)
+    
+    print("Phone regex:", phone_number_pattern)
+    print("Phone matches:", phone_matches)
+    
+    print("Phone context:")
+    phone_index = resume_text.find("+91")
+    print(resume_text[phone_index:phone_index + 30])
+    
+    for phone in phone_matches:
+        phone_numbers.extend(re.findall(r"\d+", phone))
+
+    return year_list + phone_numbers
+
+def is_education_number(context):
+    for keyword in EDUCATION_NUMBER_KEYWORDS:
+        if keyword in context:
+            return True
+        
+    for pattern in EDUCATION_PATTERNS:
+        if re.search(pattern, context, re.IGNORECASE):
+            return True
+        
+    for pattern in PERCENTAGE_PATTERNS:
+        for pattern in EDUCATION_PATTERNS:
+            if re.search(pattern, context, re.IGNORECASE):
+                return True
+        # not checking education keywords as its check is there above already
+    return False
 
 def evaluate_numbers(numbers_count):
     if numbers_count == 0:
@@ -489,8 +566,12 @@ def analyze_resume(resume_text):
         "projects_text": "",
         "experience_text": "",
     }
-    
+    print("Excluded numbers:", find_excluded_numbers(resume_text))
     resume_lower = resume_text.lower()
+    print(find_number_context(resume_text, find_excluded_numbers(resume_text)))
+    
+    for item in find_number_context(resume_text, find_excluded_numbers(resume_text)):
+        print(f"{item["number"]} -> {item["excluded"]}")
     
     report["score_breakdown"] = {}
             
@@ -553,8 +634,9 @@ def analyze_resume(resume_text):
         report["strengths"].append(f"Strong use of action verbs ({verb_count} detected)")
     elif verb_count >= 8:
         report["strengths"].append(f"Excellent use of action verbs ({verb_count} detected)")
-        
-    report["numbers_count"] = count_numbers(resume_text)
+    
+    excluded_numbers = find_excluded_numbers(resume_text)
+    report["numbers_count"] = count_relevant_numbers(resume_text, find_number_context(resume_text, find_excluded_numbers(resume_text)))
     report["numbers_rating"] = evaluate_numbers(report["numbers_count"])
     add_number_feedback(report["numbers_rating"], report)
     
